@@ -90,6 +90,35 @@
             border-radius: 5px;
             border: 1px solid #c3e6cb;
         }
+
+        /* WhatsApp Chat Box Styles */
+        #waChatBox {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 20px;
+            z-index: 9999;
+            display: none;
+        }
+        #waChatToggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #25d366;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 9999;
+        }
     </style>
 </head>
 <body>
@@ -113,5 +142,35 @@
         @yield('content')
     </div>
 
+    <!-- WhatsApp Chat Box -->
+    <div id="waChatBox">
+        <div style="text-align:center;">
+            <img src="/logo.png" style="max-height:50px;" alt="Logo">
+            <h4>Hubungi Kami</h4>
+        </div>
+        <input type="text" id="waName" placeholder="Nama" required style="width:100%;margin:5px 0;">
+        <input type="text" id="waNumber" placeholder="Nomor WhatsApp" value="+62" required style="width:100%;margin:5px 0;">
+        <textarea id="waMessage" placeholder="Pesan" style="width:100%;margin:5px 0;"></textarea>
+        <button onclick="sendToWhatsapp()" style="width:100%;background:#25d366;color:white;border:none;padding:10px;margin-top:10px;">Kirim di WhatsApp</button>
+    </div>
+
+    <div id="waChatToggle" onclick="toggleWAChat()">💬</div>
+
+    <script>
+    function toggleWAChat() {
+        const box = document.getElementById('waChatBox');
+        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+    function sendToWhatsapp() {
+        const adminPhone = "081339344311"; // Ganti dengan nomor admin
+        const name = document.getElementById("waName").value;
+        const userPhone = document.getElementById("waNumber").value;
+        const message = document.getElementById("waMessage").value;
+
+        const finalMessage = `Halo Admin, saya ${name} (${userPhone}). Saya ingin bertanya: ${message}`;
+        const waUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(finalMessage)}`;
+        window.open(waUrl, "_blank");
+    }
+    </script>
 </body>
 </html>

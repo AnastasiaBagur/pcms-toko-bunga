@@ -10,8 +10,8 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::all();
-        return view('admin.products.index', compact('products'));
+        $products = Product::all(); // Ganti dari $product menjadi $products
+        return view('admin.products.index', compact('products')); // Ganti 'admin.product.index' jadi 'admin.products.index'
     }
 
     public function create()
@@ -31,7 +31,6 @@ class ProductController extends Controller
 
         $data = $request->only('name', 'description', 'price', 'stock');
 
-        // Jika ada gambar diupload, simpan ke storage
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('uploads', 'public');
         }

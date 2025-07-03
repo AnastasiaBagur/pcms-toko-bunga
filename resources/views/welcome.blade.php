@@ -31,6 +31,29 @@
                 </div>
             @endif
 
+            @if(session('success'))
+        <div style="background: #d4edda; padding: 10px; margin-bottom: 10px;">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        @foreach ($products as $product)
+            <div style="border: 1px solid #ccc; padding: 10px; width: 200px;">
+                <img src="{{ asset('storage/uploads/' . $product->image) }}" width="100%"><br>
+                <strong>{{ $product->name }}</strong><br>
+                <span>Rp {{ number_format($product->price, 0, ',', '.') }}</span><br>
+
+                <form action="{{ route('cart.add') }}" method="POST" style="margin-top: 10px;">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    <input type="hidden" name="price" value="{{ $product->price }}">
+                    <button type="submit">Masukkan ke Keranjang</button>
+                </form>
+            </div>
+        @endforeach
+    </div>
+    
             <div class="max-w-7xl mx-auto p-6 lg:p-8">
                 <div class="flex justify-center">
                     <svg viewBox="0 0 62 65" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-16 w-auto bg-gray-100 dark:bg-gray-900">

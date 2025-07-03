@@ -1,9 +1,8 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Transaction;
-use App\Models\TransactionDetail;
 
 class CheckoutController extends Controller
 {
@@ -11,34 +10,33 @@ class CheckoutController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'total' => 'required|numeric',
         ]);
 
         $cart = session()->get('cart', []);
-        if (!$cart) {
+        if (empty($cart)) {
             return redirect('/cart')->withErrors('Keranjang kosong.');
         }
 
-        // Buat transaksi baru
-        $transaction = Transaction::create([
-            'customer_name' => $request->name,
-            'total_price' => $request->total,
-            'payment_status' => 'Paid',
-        ]);
+        $name = $request->name;
+        $total = 0;
+        $message = "*Pesanan Bunga dari $name:*\n\n";
 
-        // Simpan detail transaksi
         foreach ($cart as $item) {
-            TransactionDetail::create([
-                'transaction_id' => $transaction->id,
-                'product_id' => $item['product_id'],
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
-            ]);
+            $subtotal = $item['price'] * $item['quantity'];
+            $total += $subtotal;
+
+            $message .= "- {$item['name']} (x{$item['quantity']}) - Rp " . number_format($subtotal, 0, ',', '.') . "\n";
         }
 
-        // Bersihkan keranjang
+        $message .= "\n*Total: Rp " . number_format($total, 0, ',', '.') . "*";
+
+        // Nomor WhatsApp tujuan — ganti dengan nomor Anda (format internasional tanpa +)
+        $whatsappNumber = "6281234567890"; // <-- ganti dengan nomor WA tujuan
+        $whatsappLink = "https://wa.me/$whatsappNumber?text=" . urlencode($message);
+
+        // Bersihkan keranjang setelah checkout
         session()->forget('cart');
 
-        return redirect('/')->with('success', 'Pembayaran berhasil, terima kasih!');
+        return redirect()->away($whatsappLink);
     }
 }

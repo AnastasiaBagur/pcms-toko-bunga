@@ -8,10 +8,18 @@ use App\Models\Product;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::all(); // Ganti dari $product menjadi $products
-        return view('admin.products.index', compact('products')); // Ganti 'admin.product.index' jadi 'admin.products.index'
+        $query = $request->input('q');
+
+        // Jika ada parameter pencarian
+        if ($query) {
+            $products = Product::where('name', 'like', '%' . $query . '%')->get();
+        } else {
+            $products = Product::all();
+        }
+
+        return view('admin.products.index', compact('products', 'query'));
     }
 
     public function create()
@@ -32,7 +40,10 @@ class ProductController extends Controller
         $data = $request->only('name', 'description', 'price', 'stock');
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('uploads', 'public');
+            $file = $request->file('image');
+            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads'), $filename);
+            $data['image'] = $filename;
         }
 
         Product::create($data);
@@ -60,7 +71,14 @@ class ProductController extends Controller
         $data = $request->only('name', 'description', 'price', 'stock');
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('uploads', 'public');
+            if ($product->image && file_exists(public_path('uploads/' . $product->image))) {
+                unlink(public_path('uploads/' . $product->image));
+            }
+
+            $file = $request->file('image');
+            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads'), $filename);
+            $data['image'] = $filename;
         }
 
         $product->update($data);
@@ -70,7 +88,14 @@ class ProductController extends Controller
 
     public function destroy($id)
     {
-        Product::findOrFail($id)->delete();
+        $product = Product::findOrFail($id);
+
+        if ($product->image && file_exists(public_path('uploads/' . $product->image))) {
+            unlink(public_path('uploads/' . $product->image));
+        }
+
+        $product->delete();
+
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus.');
     }
 }

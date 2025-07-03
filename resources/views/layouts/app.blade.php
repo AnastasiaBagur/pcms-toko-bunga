@@ -14,11 +14,12 @@
         }
 
         .navbar {
-            background-color: #007bff;
+            background-color:rgb(40, 95, 179);
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .navbar a {
@@ -32,54 +33,34 @@
             text-decoration: underline;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 0 20px;
-            background-color: #ffffff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
-            border-radius: 8px;
-            padding: 30px;
+        .navbar form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            border: 1px solid #dee2e6;
-            text-align: left;
-        }
-
-        th {
-            background-color: #e9ecef;
-        }
-
-        input, textarea, button {
-            padding: 10px;
-            margin: 10px 0;
-            width: 100%;
-            max-width: 500px;
+        .navbar input[type="text"] {
+            padding: 5px 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
         }
 
-        button {
-            background-color: #007bff;
-            color: white;
+        .navbar button {
+            padding: 6px 12px;
+            background-color: #07196b;
             border: none;
+            color: #fff;
+            border-radius: 5px;
             cursor: pointer;
         }
 
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        h2 {
-            color: #343a40;
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            border-radius: 8px;
         }
 
         .alert {
@@ -91,33 +72,78 @@
             border: 1px solid #c3e6cb;
         }
 
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
         /* WhatsApp Chat Box Styles */
         #waChatBox {
             position: fixed;
-            bottom: 80px;
+            bottom: 90px;
             right: 20px;
-            width: 300px;
-            background: white;
+            width: 320px;
+            background: #fff;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
             padding: 20px;
             z-index: 9999;
             display: none;
+            animation: fadeInUp 0.3s ease;
         }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .wa-input, .wa-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .wa-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .wa-button {
+            background-color: #25d366;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .wa-button:hover {
+            background-color: #1ebe57;
+        }
+
         #waChatToggle {
             position: fixed;
             bottom: 20px;
             right: 20px;
             background: #25d366;
             color: white;
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             text-align: center;
-            line-height: 50px;
-            font-size: 24px;
+            line-height: 55px;
+            font-size: 28px;
             cursor: pointer;
             z-index: 9999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -127,50 +153,71 @@
         <div>
             <a href="{{ url('/') }}">Beranda</a>
             <a href="{{ route('products.index') }}">Produk</a>
-            <a href="{{ url('/cart') }}">Keranjang</a>
+            <a href="{{ route('cart.view') }}">Keranjang</a>
             <a href="{{ route('admin.dashboard') }}">Admin</a>
         </div>
+
+        <form action="{{ route('admin.products.index') }}" method="GET">
+            <input type="text" name="q" placeholder="Cari produk..." value="{{ request('q') }}">
+            <button type="submit">Cari</button>
+        </form>
     </div>
 
     <div class="container">
+        {{-- Notifikasi sukses --}}
         @if(session('success'))
             <div class="alert">
                 {{ session('success') }}
             </div>
         @endif
 
+        {{-- Notifikasi error --}}
+        @if(session('error'))
+            <div class="alert alert-error">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        {{-- Isi halaman dinamis --}}
         @yield('content')
     </div>
 
     <!-- WhatsApp Chat Box -->
     <div id="waChatBox">
-        <div style="text-align:center;">
+        <div style="text-align:center; margin-bottom: 15px;">
             <img src="/logo.png" style="max-height:50px;" alt="Logo">
-            <h4>Hubungi Kami</h4>
+            <h4 style="margin: 10px 0;">Hubungi Kami</h4>
         </div>
-        <input type="text" id="waName" placeholder="Nama" required style="width:100%;margin:5px 0;">
-        <input type="text" id="waNumber" placeholder="Nomor WhatsApp" value="+62" required style="width:100%;margin:5px 0;">
-        <textarea id="waMessage" placeholder="Pesan" style="width:100%;margin:5px 0;"></textarea>
-        <button onclick="sendToWhatsapp()" style="width:100%;background:#25d366;color:white;border:none;padding:10px;margin-top:10px;">Kirim di WhatsApp</button>
+        <input type="text" id="waName" placeholder="Nama Anda" class="wa-input" required>
+        <input type="text" id="waNumber" placeholder="Nomor WhatsApp (+62...)" class="wa-input" required>
+        <textarea id="waMessage" placeholder="Pesan Anda..." class="wa-textarea"></textarea>
+        <button onclick="sendToWhatsapp()" class="wa-button">Kirim via WhatsApp</button>
     </div>
 
     <div id="waChatToggle" onclick="toggleWAChat()">💬</div>
 
     <script>
-    function toggleWAChat() {
-        const box = document.getElementById('waChatBox');
-        box.style.display = box.style.display === 'none' ? 'block' : 'none';
-    }
-    function sendToWhatsapp() {
-        const adminPhone = "081339344311"; // Ganti dengan nomor admin
-        const name = document.getElementById("waName").value;
-        const userPhone = document.getElementById("waNumber").value;
-        const message = document.getElementById("waMessage").value;
+        function toggleWAChat() {
+            const box = document.getElementById('waChatBox');
+            box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
+        }
 
-        const finalMessage = `Halo Admin, saya ${name} (${userPhone}). Saya ingin bertanya: ${message}`;
-        const waUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(finalMessage)}`;
-        window.open(waUrl, "_blank");
-    }
+        function sendToWhatsapp() {
+            const adminPhone = "6281352363661";
+            const name = document.getElementById("waName").value.trim();
+            const userPhone = document.getElementById("waNumber").value.trim();
+            const message = document.getElementById("waMessage").value.trim();
+
+            if (!name || !userPhone || !message) {
+                alert("Harap isi semua kolom sebelum mengirim.");
+                return;
+            }
+
+            const finalMessage = `Halo Admin, saya ${name} (${userPhone}). Saya ingin bertanya: ${message}`;
+            const waUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(finalMessage)}`;
+            window.open(waUrl, "_blank");
+        }
     </script>
+
 </body>
 </html>
